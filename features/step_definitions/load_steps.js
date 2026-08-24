@@ -9,14 +9,22 @@ Given('the following products', async function (dataTable) {
     const response = await axios.get(API_URL);
     const existingProducts = response.data;
     for (const product of existingProducts) {
-      if (product.id) { // Ensure product has an ID
+      if (product.id) {
         await axios.delete(`${API_URL}/${product.id}`);
       }
     }
   } catch (error) {
-    // Ignore if no products or API error, as the goal is to clear if possible
     console.warn('Could not clear existing products, proceeding with creation:', error.message);
   }
 
-  
+  const products = dataTable.hashes();
+  for (const product of products) {
+    await axios.post(API_URL, {
+      name: product.name,
+      description: product.description,
+      price: parseFloat(product.price),
+      available: product.available === 'True',
+      category: product.category
+    });
+  }
 });

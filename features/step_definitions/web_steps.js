@@ -110,3 +110,34 @@ When('I change {string} to {string}', async function (fieldName, newValue) {
 
 
 
+
+When('I press the {string} button', async function (buttonText) {
+  const button = await getButton(buttonText);
+  await button.click();
+});
+
+Then('I should see the message {string}', async function (message) {
+  const flashElement = await driver.wait(until.elementLocated(By.id('flash_message')), 10000);
+  await driver.wait(async () => {
+    const text = await flashElement.getText();
+    return text.includes(message);
+  }, 10000);
+  const actualText = await flashElement.getText();
+  assert.strictEqual(actualText.includes(message), true, `Expected flash message to include "${message}", but got "${actualText}"`);
+});
+
+Then('I should see {string} in the results', async function (text) {
+  const resultsElement = await driver.findElement(By.id('search_results'));
+  await driver.wait(async () => {
+    const resultsText = await resultsElement.getText();
+    return resultsText.includes(text);
+  }, 10000);
+  const resultsText = await resultsElement.getText();
+  assert.strictEqual(resultsText.includes(text), true, `Expected to see "${text}" in the results, but got "${resultsText}"`);
+});
+
+Then('I should not see {string} in the results', async function (text) {
+  const resultsElement = await driver.findElement(By.id('search_results'));
+  const resultsText = await resultsElement.getText();
+  assert.strictEqual(resultsText.includes(text), false, `Expected not to see "${text}" in the results, but it was found`);
+});
